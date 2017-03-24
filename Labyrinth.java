@@ -92,7 +92,8 @@ public class Labyrinth {
 			Random rand = new Random();
 			int randomPiece = rand.nextInt(pieces.size());
 			Piece aPiece = pieces.get(randomPiece);
-			int randomSpin = rand.nextInt(4)+1;
+			int randomSpin = rand.nextInt(4);
+			aPiece.orientation = randomSpin;
 			for(int i=0; i<randomSpin; i++){
 				aPiece.rotateLeft();
 			}
@@ -484,6 +485,7 @@ public class Labyrinth {
 		//array of which directions on the piece has an opening in the order {N,E,S,W}
 		boolean[] paths = new boolean[4];
 		String treasure;
+		int orientation;
 		//pass in -1 for x and y if the piece doesn't have a designated spot on the board
 		//so it can get randomly placed later
 		int[] spot = new int[2];
