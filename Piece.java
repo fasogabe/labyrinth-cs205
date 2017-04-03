@@ -79,12 +79,12 @@ public class Piece {
                 paths[0] = temp;
             }
         }
-        if (orientation==3){
-            orientation=0;
-        }
-        else{
-            orientation++;
-        }
+//         if (orientation==3){
+//             orientation=0;
+//         }
+//         else{
+//             orientation++;
+//         }
 
         //GUI.rotateRight(spot,orientation);
     }
