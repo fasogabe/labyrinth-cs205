@@ -1,4 +1,4 @@
-package labyrinthram;
+package Labyrinth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +24,8 @@ public class Labyrinth {
         static Labyrinth labyrinth;
         
         public Labyrinth(){
-                gui = new GUI();
-                this.initializePieces();
+        gui = new GUI();
+        this.initializePieces();
 		this.initializeBoard();
 		this.initializeDeck();
 		this.initializePlayers();
@@ -96,7 +96,6 @@ public class Labyrinth {
 			if(thisPiece.isitGlued() == true){
 				int x = thisPiece.spot[0];
 				int y = thisPiece.spot[1];
-                                System.out.println(thisPiece.orientation);
 				board[x][y] = thisPiece;
 				pieces.remove(thisPiece);
 				i= i-1;
@@ -210,6 +209,9 @@ public class Labyrinth {
 	}
 	public Piece[][] getBoard(){
 		return board;
+	}
+	public Piece getSpare(){
+		return spare;
 	}
 	
 	private void isTheGameOver(){
@@ -358,6 +360,51 @@ public class Labyrinth {
 			}
 		}
 	}
+	//needs to be tested
+	//will move the player with the pieces that slide when a piece is inserted and
+	//the player will wrap around if it goes off the board
+	private void shiftPlayerLocation(Player player, int[] loc){
+		int x = loc[0];
+		int y = loc[1];
+		int playerx = player.location[0];
+		int playery = player.location[1];
+		if(x==0){
+			if(y==playery){
+				if(playery<6){
+					player.updateLocation(playerx, playery+1);
+				} else {
+					player.updateLocation(playerx, 0);	
+				}
+			}
+		}
+		if(y==0){
+			if(x==playerx){
+				if(playerx<6){
+					player.updateLocation(playerx+1, playery);
+				} else {
+					player.updateLocation(0, playery);	
+				}
+			}
+		}
+		if(x==6){
+			if(y==playery){
+				if(playery>0){
+					player.updateLocation(playerx, playery-1);
+				} else {
+					player.updateLocation(playerx, 6);	
+				}
+			}
+		}
+		if(y==6){
+			if(x==playerx){
+				if(playerx>0){
+					player.updateLocation(playerx-1, playery);
+				} else {
+					player.updateLocation(6, playery);	
+				}
+			}
+		}
+	}
 	
 	private void playGame(){
 		while(gameOver == false){
@@ -367,6 +414,11 @@ public class Labyrinth {
 			//get user input on where to put in their spare piece
 			int[] location = GUI.getInsertLocation();
 			insertPiece(location);
+			
+			//check if the play shifts with the board
+			
+			shiftPlayerLocation(player1,location);
+			shiftPlayerLocation(player2,location);
 			
 			//NEED TO UPDATE THE GUI HERE BECAUSE THE BOARD SHIFTED
 			
@@ -422,7 +474,7 @@ public class Labyrinth {
 				}
 				System.out.print("\n");
 			}
-			System.out.println("Spare: " + Labyrinth.spare.treasure);
+			System.out.println("Spare: " + labyrinth.spare.treasure);
 			
 			System.out.println("Player1 deck: " + labyrinth.player1.deck);
 			
