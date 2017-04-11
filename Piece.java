@@ -3,14 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package labyrinthram;
+package classes;
+
+import ch.aplu.jgamegrid.Actor;
 
 /**
  *
  * @author seanflynn
  */
-public class Piece {
-
+public class Piece extends Actor{
+    
     //array of which directions on the piece has an opening in the order {N,E,S,W}
     boolean[] paths = new boolean[4];
     String treasure;
@@ -22,6 +24,7 @@ public class Piece {
     
 
     Piece(String type, int orientation, String treasure, int x, int y) {
+        super(true,"sprites/"+type+"-"+orientation+".png");
         this.treasure = treasure;
         this.orientation = orientation;
         this.type = type;
@@ -79,17 +82,14 @@ public class Piece {
                 paths[0] = temp;
             }
         }
-//         if (orientation==3){
-//             orientation=0;
-//         }
-//         else{
-//             orientation++;
-//         }
-
-        //GUI.rotateRight(spot,orientation);
-    }
+       
+       if (!isitGlued()) {
+           orientation++;
+           orientation%=4;
+       }
+        }
     
-    public void setPaths(Piece piece){
+    public final void setPaths(Piece piece){
         if ("I".equals(piece.type)){
             paths[0]=true;
             paths[1]=false;
@@ -110,11 +110,11 @@ public class Piece {
             paths[3]=false;
             
         }
-        for (int i=0;i<piece.orientation;i++){ // doesn't rotate if orientation is 0 otherwise makes paths match based on orientation
+        int rotations = piece.orientation;
+        for (int i=0;i<rotations;i++){ // doesn't rotate if orientation is 0 otherwise makes paths match based on 
             piece.rotateRight(); 
             
         }
-        System.out.println();
                 
     }
 

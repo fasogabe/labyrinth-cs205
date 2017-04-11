@@ -1,5 +1,7 @@
-package Labyrinth;
+package classes;
 
+import ch.aplu.jgamegrid.Location;
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -10,8 +12,9 @@ public class Labyrinth {
 	
 	private boolean debug = true;
 	private ArrayList<Piece> pieces = new ArrayList();
-	private Piece[][] board = new Piece[7][7];
-	static Piece spare;
+	private Piece[][] board = new Piece[
+                7][7];
+	private Piece spare;
 	private Player player1;
 	private Player player2;
 	private ArrayList<String> deck = new ArrayList(); 
@@ -20,13 +23,13 @@ public class Labyrinth {
 	//playing a cp?
 	boolean playCP;
 	boolean gameOver = false;
-        private GUI gui;
+        private mainGUI gui;
         static Labyrinth labyrinth;
         
         public Labyrinth(){
-        gui = new GUI();
-        this.initializePieces();
-		this.initializeBoard();
+                //gui = new GUI();
+                this.initializePieces();
+                this.initializeBoard();
 		this.initializeDeck();
 		this.initializePlayers();
 		this.playGame();
@@ -109,6 +112,7 @@ public class Labyrinth {
 			int randomSpin = rand.nextInt(4);
 			aPiece.orientation = randomSpin;
 			for(int i=0; i<randomSpin; i++){
+                                
 				aPiece.rotateRight(); // changed from rotateLeft() to rotateRight because GUI considers increase in rotation to be clockwise
 			}
 			for(int i=0;i<7;i++){
@@ -116,7 +120,6 @@ public class Labyrinth {
 					if(board[i][j]==null){
 						board[i][j]= aPiece;
 						pieces.remove(aPiece);
-                                                
 						//kill the for loops after the piece is placed
 						i=7;
 						j=7;
@@ -124,7 +127,16 @@ public class Labyrinth {
 				}
 			}	
 		}
-                gui.displayBoard(board);
+                //gui.displayBoard(board);
+                
+                // Invoke EventQueue
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        new mainGUI(board).setVisible(true);
+                        
+                    }
+                });
+                //gui.initComponents(board);
 		//the last remaining piece is the spare
 		spare = pieces.get(0);
 		pieces.remove(spare);
@@ -170,7 +182,7 @@ public class Labyrinth {
 	}	
 	private void initializePlayers(){
 		//get user input from a gui that pops up at the start maybe?
-		String player1Name = GUI.getPlayer1Name();
+		String player1Name = gui.gg.getPlayer1Name();
 		ArrayList<String> halfDeck = new ArrayList(); 
 		for(int i=0;i<deck.size()/2;i++){
 			halfDeck.add(deck.get(2*i));
@@ -180,12 +192,12 @@ public class Labyrinth {
 		}
 		player1 = new Player(player1Name,"blue",0,6,halfDeck);
 		//user input to say, "do you want to play a cp or 1V1
-		playCP = GUI.whoToPlay();
+		playCP = gui.gg.whoToPlay();
 		if(playCP == true){
 			player2 = new Player("CP","green",6,0,deck);
 		}
 		else{
-			String player2Name = GUI.getPlayer2Name();
+			String player2Name = gui.gg.getPlayer2Name();
 			player2 = new Player(player2Name,"green",6,0,deck);
 		}
 	}
@@ -210,7 +222,7 @@ public class Labyrinth {
 	public Piece[][] getBoard(){
 		return board;
 	}
-	public Piece getSpare(){
+        public Piece getSpare(){
 		return spare;
 	}
 	
@@ -360,7 +372,7 @@ public class Labyrinth {
 			}
 		}
 	}
-	//needs to be tested
+        //needs to be tested
 	//will move the player with the pieces that slide when a piece is inserted and
 	//the player will wrap around if it goes off the board
 	private void shiftPlayerLocation(Player player, int[] loc){
@@ -405,27 +417,32 @@ public class Labyrinth {
 			}
 		}
 	}
+        
 	
 	private void playGame(){
 		while(gameOver == false){
 			nextTurn();
 			Player player = getWhoseTurn();
-			System.out.println(player.getColor() + "'s turn-------------------------------------------------");
+                        
+                        System.out.println("Spare= " +spare.type+"-"+spare.orientation);
+                        
 			//get user input on where to put in their spare piece
-			int[] location = GUI.getInsertLocation();
+			int[] location = gui.gg.getInsertLocation();
+//                        int[] guiLoc = gui.convertToGuiLoc(location);
+
 			insertPiece(location);
-			
-			//check if the play shifts with the board
+                        
+                        //check if the play shifts with the board
 			
 			shiftPlayerLocation(player1,location);
 			shiftPlayerLocation(player2,location);
 			
-			//NEED TO UPDATE THE GUI HERE BECAUSE THE BOARD SHIFTED
-			
+			//NEED TO UPDATE THE gui HERE BECAUSE THE BOARD SHIFTED
+			gui.gg.displayBoard(board);
 			//get where the player wants to move and where they are
 			int hereX = player.getLocation()[0];
 			int hereY = player.getLocation()[1];
-			int[] moveTo = GUI.wantToMoveHere();
+			int[] moveTo = gui.gg.wantToMoveHere();
 			int moveX = moveTo[0];
 			int moveY = moveTo[1];
 			
@@ -433,11 +450,13 @@ public class Labyrinth {
 			ArrayList<int[]> visited = new ArrayList();
 			while(pathExists(visited,hereX,hereY,moveX,moveY)==false){
 				//tell user to try a new spot
-				moveTo = GUI.wantToMoveHere();
+				moveTo = gui.gg.wantToMoveHere();
 				moveX = moveTo[0];
 				moveY = moveTo[1];
 			}
 			
+                        
+                        
 			//if path exists move the player to the piece
 			player.updateLocation(moveX,moveY);
 			
@@ -447,7 +466,7 @@ public class Labyrinth {
 				player.flipCard();
 			}
 			
-			//NEED TO UPDATE THE GUI HERE BECAUSE THE PLAYER MOVED
+			//NEED TO UPDATE THE gui HERE BECAUSE THE PLAYER MOVED
 			
 			//lastly check if the game is over
 			isTheGameOver();
@@ -463,24 +482,27 @@ public class Labyrinth {
 	
 	public static void main(String[] args) {
                 
-		Labyrinth.labyrinth = new Labyrinth();
-		
+		labyrinth = new Labyrinth();
+		                
 		if(labyrinth.debug == true){
 			//print out the board pieces treasure.
 			//you can see any of the variables for the piece by changing labyrinth.board[i][j].???? <-here
-			for(int i=6;i>=0;i--){
-				for(int j=0;j<7;j++){
-					System.out.print(" "+j+", "+i+" ="+labyrinth.board[j][i].orientation);
-				}
-				System.out.print("\n");
-			}
-			System.out.println("Spare: " + labyrinth.spare.treasure);
-			
-			System.out.println("Player1 deck: " + labyrinth.player1.deck);
-			
-			System.out.println("Player2 deck: " + labyrinth.player2.deck);
-		}
-
-	}
+//			for(int i=0;i<7;i++){
+//				for(int j=0;j<7;j++){
+//					System.out.print(labyrinth.board[j][6-i].orientation+"   ");
+//				}
+//                                System.out.print("\n");
+//                                System.out.print("\n");
+//			}
+//			System.out.println("Spare: " + labyrinth.spare.treasure);
+//			
+//			System.out.println("Player1 deck: " + labyrinth.player1.deck);
+//			
+//			System.out.println("Player2 deck: " + labyrinth.player2.deck);
+//		}
+//
+//	}
 	
+                }
+        }
 }
